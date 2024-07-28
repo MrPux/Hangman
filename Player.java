@@ -15,7 +15,7 @@ public class Player
 	private BufferedReader bufferedReader;
 	private BufferedWriter bufferedWriter; 
 
-	public static void main(String[] args)
+	public static void main(String[] args) throws IOException
 	{
 		Scanner input = new Scanner(System.in);
 		System.out.println("What is your name: ");
@@ -64,7 +64,7 @@ public class Player
 					closeEverything(socket, bufferedReader, bufferedWriter);
 				}
 			}
-		})
+		}).start();
 	}
 
 	public void sendMessage()
