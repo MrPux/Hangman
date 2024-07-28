@@ -49,9 +49,7 @@ public class PlayerHandler implements Runnable
         }
      } 
     }
-   
     
-
     public void broadcastMessage(String message)
     {
         for(PlayerHandler player : playerHandlers)
@@ -70,8 +68,7 @@ public class PlayerHandler implements Runnable
             }
         }
     }
-
-
+ 
     public void removeHandler()
     {
         playerHandlers.remove(this);
