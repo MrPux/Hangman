@@ -26,6 +26,8 @@ public class PlayerHandler implements Runnable
             this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             this.username = bufferedReader.readLine();
 
+            playerHandlers.add(this);
+
             broadcastMessage("Server: " + username + " has entered the chat!");
 
         }catch(IOException e)
@@ -34,6 +36,7 @@ public class PlayerHandler implements Runnable
         }
     }
 
+    @Override
     public void run()
     {
      String message;
@@ -41,11 +44,13 @@ public class PlayerHandler implements Runnable
      {
         try
         {
-            message = bufferedReader.readLine();
+            message = bufferedReader.readLine(); 
+            if(message == null) break;
             broadcastMessage(message);
         }catch(IOException e)
         {
             closeEverything(socket, bufferedReader, bufferedWriter);
+            break;
         }
      } 
     }
@@ -58,9 +63,9 @@ public class PlayerHandler implements Runnable
             {
                 if(!player.username.equals(username))
                 {
-                    bufferedWriter.write(message); 
-                    bufferedWriter.newLine();
-                    bufferedWriter.flush();
+                    player.bufferedWriter.write(message); 
+                    player.bufferedWriter.newLine();
+                    player.bufferedWriter.flush();
                 }
             }catch(IOException e)
             {

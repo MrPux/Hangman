@@ -11,6 +11,7 @@ public class Server
         ServerSocket serverSocket = new ServerSocket(1818);
         Server server = new Server(serverSocket);
         server.Start();
+         
     }
 
     public Server(ServerSocket serverSocket)

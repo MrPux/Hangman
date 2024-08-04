@@ -14,6 +14,7 @@ public class Player
 	private String username;
 	private BufferedReader bufferedReader;
 	private BufferedWriter bufferedWriter; 
+	private Hangman game;
 
 	public static void main(String[] args) throws IOException
 	{
@@ -21,51 +22,45 @@ public class Player
 		System.out.println("What is your name: ");
 		String username = input.nextLine();
 		Socket socket = new Socket("localhost", 1818);
+		Hangman game = new Hangman(username, socket);
+ 
+		Player player = new Player(username, socket, game); 
 
-		Player player = new Player(username, socket);
+
 		player.listenForMessage();
 		player.sendMessage(); 
-
+		// new Thread(new Runnable()
+		// {
+		// 	@Override 
+		// 	public void run()
+		// 	{
+		// 	}
+		// }).start();
 		input.close();
 
 	}
 
-	public Player(String username, Socket socket)
+
+	public Player(String username, Socket socket, Hangman game)
 	{
 		try
 		{
 			this.username = username;
 			this.socket = socket;
+			this.game = game;
 			this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())); 
+			 
+			// game.listenForCommands();
 		}catch(IOException e)
 		{
 			closeEverything(socket, bufferedReader, bufferedWriter);
 		}
 	}
 
-	public void listenForMessage()
-	{
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				String message; 
-				try
-				{
-					while(socket.isConnected()){
-					message = bufferedReader.readLine();
-					System.out.println(message);
-				 	}
-
-				}catch(IOException e)
-				{
-					closeEverything(socket, bufferedReader, bufferedWriter);
-				}
-			}
-		}).start();
-	}
+	
+	public void setHangman(Hangman game){this.game = game;}
+	public Hangman getHangman(){return this.game;} 
 
 	public void sendMessage()
 	{
@@ -83,12 +78,41 @@ public class Player
 				bufferedWriter.write(username + ": " + message);
 				bufferedWriter.newLine();
 				bufferedWriter.flush(); 
+
+				// game.setCommand(message);
+				game.listenForCommands(message);
 			}
 			input.close();
 		}catch(IOException e)
 		{ 
 			closeEverything(socket, bufferedReader, bufferedWriter);
 		}
+	}
+
+	public void listenForMessage()
+	{
+		new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				String message; 
+				try
+				{
+					while(socket.isConnected())
+					{
+						message = bufferedReader.readLine();
+						if(message == null) break;
+						System.out.println(message);
+						bufferedWriter.flush();
+				 	}
+
+				}catch(IOException e)
+				{
+					closeEverything(socket, bufferedReader, bufferedWriter);
+				}
+			}
+		}).start();
 	}
 
 	public void closeEverything(Socket socket, BufferedReader bufferedReader, BufferedWriter bufferedWriter)
@@ -107,6 +131,7 @@ public class Player
 			{
 				bufferedWriter.close();
 			}
+			game.closeEverything(socket, bufferedReader, bufferedWriter);
 
 		}catch(IOException e)
 		{
